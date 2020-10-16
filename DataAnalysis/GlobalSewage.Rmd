@@ -1,6 +1,52 @@
+
+
+```{r, echo=FALSE, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, fig.width=10, fig.height=5)
+```
+
+```{r, message=FALSE, warning=FALSE}
+library(vegan)
+#library(phyloseq)
+library(tidyverse)
+library(reshape2)
+library(grid)
+library(gridExtra)
+library(ggrepel)
+library(MASS)
+library(GGally)
+#library(countrycode)
+#library(rsample)
+library(betareg)
+library(lmtest)
+library(pheatmap)
+library(patchwork)
+```
+
 # Short introduciton 
+The main objective of this project is to use untreated sewage as a marker for antibiotic resistance prevalence in clinical pathogens.  
+We want to test whether antibiotic resistance gene levels in sewage could be used to predict clinical resistance. 
+
+## The data
+Metagenomic sequencing data from untreated sewage comes from an article in *Nature Communications* [Global monitoring of antimicrobial resistance based on metagenomics analyses of urban sewage.](https://doi.org/10.1038/s41467-019-08853-3)  
+The raw sequence data from this study was downloaded from [ENA](https://www.ebi.ac.uk/ena) under project [ERP015409](https://www.ebi.ac.uk/ena/data/view/PRJEB13831).
+
+The data consists of 234 sewage metagenomemes from 62 countries. The antibiotic resistance genes were annotated against [ResFinder v.3.1.0](https://bitbucket.org/genomicepidemiology/resfinder) database and *intI1* against [MobileGeneticElementDatabase](https://github.com/KatariinaParnanen/MobileGeneticElementDatabase).  
+
+The clinical resistance data for *E. coli* againts four different classes of antibiotics, aminopenicillins, fluoroquinolones, 3rd generation cephalosporins and aminoglycosides was collected from different surveillance networks. At least partial clinical resistance data is available from 38 countries.
+Only data from more than 100 isolates was considered reliable and included in the actual analyses. After this we have 32 countries with clinical resistance data. 
+
+In addition socioeconomical factors from [Collignon *et al.*, 2018](https://doi.org/10.1016/S2542-5196(18)30186-4) were included in the analyses. 
+
+All ARG and *intI1* counts were summed and Relative to the amount of sequence data (million bases). Because the clinical resistance data is on country level the normalised gene count data was grouped per country by taking the mean from the replicate counts(`Sewage resistance load`).
+
+We use *intI1* count as a proxy for resistance load as has been proposed earlier and more importantly it has been shown to correlate with resistance prevalence in _E. coli_.  
 
 # Main article
+We start by reading the data table into R.  
+```{r, echo=FALSE}
+# Data
+load("../Data/GlobalSewage.R", verbose=TRUE)
+```
 ## Figure 1 and 
 
 # Supplementary materials
