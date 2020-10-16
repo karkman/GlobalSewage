@@ -9,4 +9,4 @@ The clinical resistance and socioeconomical data sources are described in Table 
 The pre-processing of the data is described in [here.](PreProcessing)  
 
 ## Data analyis
-The data analysis steps and making of the figures in R are desribed in [here.](DataAnalysis)
+The data analysis steps and making of the figures in R are desribed in [here.]( https://karkman.github.io/GlobalSewage/)
