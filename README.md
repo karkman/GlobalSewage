@@ -1,6 +1,6 @@
 # GlobalSewage Project
 
-***This repository is under construction***
+## This repository is under construction
 
 This repository contains all data analysis for ***Predicting clinical resistance prevalence using sewage metagenomic data*** (DOI:XXX).
 
