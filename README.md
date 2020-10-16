@@ -5,5 +5,8 @@ This study is based on the sewage metagenomes from ***Global monitoring of antim
 
 The clinical resistance and socioeconomical data sources are described in Table 1 in the article and can be found from the `Data` folder in this repository.
 
-## Preprocessing
-The pre-processing of the data is described in [here](PreProcessing)  
+## Pre-processing
+The pre-processing of the data is described in [here.](PreProcessing)  
+
+## Data analyis
+The data analysis step in R are desribed in [here.](DataAnalysis)
