@@ -9,7 +9,9 @@ This study is based on the sewage metagenomes from ***Global monitoring of antim
 The clinical resistance and socioeconomical data sources are described in Table 1 in the article and can be found from the `Data` folder in this repository.
 
 ## Pre-processing
-The pre-processing of the data is described in [here.](PreProcessing)  
+After downloading the metagenomes from ENA some pre-processing was needed.  
+All pre-processing steps are described in [here.](PreProcessing)  
 
 ## Data analyis
-The data analysis steps and making of the figures in R are desribed in [here.]( https://karkman.github.io/GlobalSewage/)
+After pre-processing the metagenomic data was combined with clinical and socioeconomical data on country level in one data frame in R.
+The data analysis steps after this and making of the figures in R are desribed in [here.]( https://karkman.github.io/GlobalSewage/)
