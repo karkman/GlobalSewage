@@ -1,6 +1,7 @@
 ---
-title: "Global Sewage project"
-author: "Antti Karkman"
+title: "Global Sewage Project"
+subtitle: " Predicting clinical resistance prevalence using sewage metagenomic data"
+author: "Antti Karkman, 2020"
 output:
   html_document:
     theme: cosmo
