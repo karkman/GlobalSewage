@@ -43,5 +43,6 @@ The parser counts the occurrence of each gene in each sample. The R2 read is cou
 After ARG/_intI1_ integrase gene annotation the results were analysed in R.
 
 ## Data analyis
-After pre-processing the metagenomic data was combined with clinical and socioeconomical data on country level in one data frame in R.
-The data analysis steps after this and making of the figures in R are described in [here.]( https://karkman.github.io/GlobalSewage/)
+After pre-processing the metagenomic data was imported to R.  Metagenomic data was combined with clinical and socioeconomical data on country level. For countries where there were more than one sewage sample, mean count was used.  
+
+The data analysis steps and making of the figures in R are described in [here.]( https://karkman.github.io/GlobalSewage/)
