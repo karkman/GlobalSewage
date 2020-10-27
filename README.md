@@ -19,6 +19,8 @@ cutadapt -m 1 -e 0.2 -O 10 -g AGATCGGAAGAGC -G AGATCGGAAGAGC \
 
 After trimming the adapters the reads were converted from FASTQ to FASTA and all R1 and R2 reads combined. The combined R1 and R2 reads were searched for antibiotic resistance genes and _intI1_ integrase genes with [DIAMOND v.0.9.114](http://www.diamondsearch.org/index.php).  
 
+The _E. coli_ connected ARGs were annotated in similar way.
+
 ```
 # R1 reads
 diamond blastx -d [ARG/MGE DATABASE] -q GlobalSewage_R1.fasta \
@@ -31,13 +33,15 @@ diamond blastx -d [ARG/MGE DATABASE] -q GlobalSewage_R2.fasta \
           --id [ARG:90 / MGE:95] --min-orf 20 -p 24 --seg no
 ```
 
-After searching R1 and R2 reads for ARGs/_intI_ integrase gene, the results were combined to a gene count table using a [paired end version of the DIAMOND parser, v.0.1](https://github.com/karkman/parse_diamond).
+After searching R1 and R2 reads for ARGs/_intI_ integrase gene, the results were combined to a gene count table using a [paired end version of the DIAMOND parser v.0.1](https://github.com/karkman/parse_diamond).
+The parser counts the occurrence of each gene in each sample. The R2 read is counted only if the corresponding R1 read did not have a hit.  
 
 ```
 ./parse_diamondPE.py -1 GlobalSewage_R1.txt -2 GlobalSewage_R2.txt -o GlobalSewage_gene_count.csv
 ```
 
+After ARG/_intI1_ integrase gene annotation the results were analysed in R.
 
 ## Data analyis
 After pre-processing the metagenomic data was combined with clinical and socioeconomical data on country level in one data frame in R.
-The data analysis steps after this and making of the figures in R are desribed in [here.]( https://karkman.github.io/GlobalSewage/)
+The data analysis steps after this and making of the figures in R are described in [here.]( https://karkman.github.io/GlobalSewage/)
