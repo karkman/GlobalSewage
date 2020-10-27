@@ -2,14 +2,14 @@
 
 ## This repository is under construction
 
-This repository contains all data analysis for ***Predicting clinical resistance prevalence using sewage metagenomic data*** (DOI:XXX).
+This repository contains all data analysis for ***Predicting clinical resistance prevalence using sewage metagenomic data*** (Karkman _et al._, 2020).
 
-This study is based on the sewage metagenome data from ***Global monitoring of antimicrobial resistance based on metagenomics analyses of urban sewage*** by Hendriksen _et al_. 2019 (https://doi.org/10.1038/s41467-019-08853-3). These metagenomes used in this study can be downloaded from ENA under project accession number ERP015409 or from SRA under project accession PRJEB13831.
+This study is based on the sewage metagenome data from ***Global monitoring of antimicrobial resistance based on metagenomics analyses of urban sewage*** by Hendriksen _et al_. (2019). These metagenomes used in this study can be downloaded from ENA under project accession number ERP015409 or from SRA under project accession PRJEB13831.
 
-The clinical resistance and socioeconomical data sources are described in Table 2 in the article and can be found from the `Data` folder in this repository.
+The clinical resistance and socioeconomical data sources are described in Table 2 (Karkman _et al._, 2020) and can be found from the `Data` folder in this repository.
 
 ## Pre-processing
-Raw sequencing data was downloaded from European Nucleotide Archive (ENA) under the project accession [ERP015409](https://www.ebi.ac.uk/ena/browser/view/PRJEB13831) and remaining sequencing adapters were removed using [cutadapt v.2.7](https://cutadapt.readthedocs.io/en/v2.7/).  
+Raw sequencing data was downloaded from European Nucleotide Archive (ENA) under the project accession [ERP015409](https://www.ebi.ac.uk/ena/browser/view/PRJEB13831) and remaining sequencing adapters were removed using [cutadapt v.2.7](https://cutadapt.readthedocs.io/en/v2.7/) (Martin, 2011).   
 
 ```
 cutadapt -m 1 -e 0.2 -O 10 -g AGATCGGAAGAGC -G AGATCGGAAGAGC \
@@ -19,7 +19,7 @@ cutadapt -m 1 -e 0.2 -O 10 -g AGATCGGAAGAGC -G AGATCGGAAGAGC \
 
 After trimming the adapters the reads were converted from FASTQ to FASTA and all R1 and R2 reads combined. The combined R1 and R2 reads were searched for antibiotic resistance genes and _intI1_ integrase genes with [DIAMOND v.0.9.114](http://www.diamondsearch.org/index.php).  
 
-The _E. coli_ connected ARGs were annotated in similar fashion (see article for details).
+The _E. coli_ connected ARGs were annotated in similar fashion (see Karkman _et al._, 2020 for details).
 
 ```
 # R1 reads
@@ -50,4 +50,4 @@ The data analysis steps and making of the figures in R are described in [here.](
 ## References
 
 * Karkman, A., Berglund, F. ...
-* 
+- Hendriksen https://doi.org/10.1038/s41467-019-08853-3)
