@@ -7,18 +7,6 @@ author: "Antti Karkman"
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, fig.width=10, fig.height=5)
 ```
 
-```{r, message=FALSE, warning=FALSE}
-library(vegan)
-library(tidyverse)
-library(MASS)
-library(gridExtra)
-library(GGally)
-library(betareg)
-library(lmtest)
-library(pheatmap)
-library(patchwork)
-```
-
 # Short Introduction 
 The main objective of this project is to use untreated sewage as a marker for antibiotic resistance prevalence in clinical pathogens.  
 We want to test whether sewage meatgenomic could be used to predict clinical resistance. 
