@@ -1,5 +1,6 @@
 ---
 title: "Global Sewage Project"
+author: "Antti Karkman"
 ---
 
 ```{r, echo=FALSE, include=FALSE}
@@ -10,6 +11,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, fig.width=1
 library(vegan)
 library(tidyverse)
 library(MASS)
+library(gridExtra)
 library(GGally)
 library(betareg)
 library(lmtest)
@@ -17,11 +19,11 @@ library(pheatmap)
 library(patchwork)
 ```
 
-# Short introduction 
+# Short Introduction 
 The main objective of this project is to use untreated sewage as a marker for antibiotic resistance prevalence in clinical pathogens.  
 We want to test whether sewage meatgenomic could be used to predict clinical resistance. 
 
-## The data
+## The Data
 Metagenomic sequencing data from untreated sewage comes from an article in *Nature Communications* [Global monitoring of antimicrobial resistance based on metagenomics analyses of urban sewage.](https://doi.org/10.1038/s41467-019-08853-3)  
 The raw sequence data from this study was downloaded from [ENA](https://www.ebi.ac.uk/ena) under project [ERP015409](https://www.ebi.ac.uk/ena/data/view/PRJEB13831).
 
@@ -37,17 +39,180 @@ All ARG and *intI1* integrase gene counts were normalized to the amount of seque
 All data has been gathered to one data frame and is available in the `Data` folder. 
 
 # Data Analyses 
+Load all needed libraries. 
+```{r, message=FALSE, warning=FALSE}
+library(vegan)
+library(tidyverse)
+library(MASS)
+library(gridExtra)
+library(GGally)
+library(betareg)
+library(lmtest)
+library(pheatmap)
+library(patchwork)
+```
+
 Read in the data and have a look. 
-```{r, echo=FALSE}
+```{r}
 # Data
 load("../Data/GlobalSewage.R", verbose=TRUE)
 glimpse(ResData)
 ```
 
-## Main article
+## Main Article
 
-### Figure 1 and 
+### _E. coli_ clinical resistance models based on ten most common ARGs in _E. coli_ 
 
-## Supplementary materials
+**Clinical aminopenicillin resistance**
+```{r}
+tmp <- ResData %>% filter(`AP_(n)`>100)
+tmp$y = tmp$`AP_(R%)`/100
+breg <- betareg(y ~ mean_topColi, data=tmp, link="loglog")
+summary(breg)
+
+
+new_int <- data.frame(mean_topColi=seq(min(tmp$mean_topColi), max(tmp$mean_topColi)+0.05, 0.05))
+new_int$y <- predict(breg, newdata=new_int)
+
+p1 <- ggplot(tmp, aes(mean_topColi, y)) + geom_point(pch=21, size=5, fill="skyblue") +
+  geom_line(aes(mean_topColi, y), data=new_int, linetype="twodash", color="blue", size=1) + theme_classic() +
+  scale_size(limits=c(50,100), breaks=c(60, 80, 100)) + scale_x_continuous(limits=c(0, 0.35)) +
+  labs(x="Relative ARG abundance", y="Proportion of resistant clinical isolates", title="A")
+```
+
+**Clinical fluoroquinolone resistance**
+```{r}
+tmp <- ResData %>% filter(`FQ_(n)`>100)
+tmp$y = tmp$`FQ_(R%)`/100
+breg <- betareg(y ~ mean_topColi, data=tmp, link="loglog")
+summary(breg)
+
+
+new_int <- data.frame(mean_topColi=seq(min(tmp$mean_topColi), max(tmp$mean_topColi)+0.05, 0.05))
+new_int$y <- predict(breg, newdata=new_int)
+
+p2 <- ggplot(tmp, aes(mean_topColi, y)) + geom_point(pch=21, size=5, fill="skyblue") +
+  geom_line(aes(mean_topColi, y), data=new_int, linetype="twodash", color="blue", size=1) + theme_classic() +
+  scale_size(limits=c(50,100), breaks=c(60, 80, 100)) + scale_x_continuous(limits=c(0, 0.35)) +
+  labs(x="Relative ARG abundance", y="Proportion of resistant clinical isolates", title="B")
+```
+
+**Clinical 3rd generation cephalosporin resistance**
+```{r}
+tmp <- ResData %>% filter(`3GC_(n)`>100)
+tmp$y = tmp$`3GC_(R%)`/100
+breg <- betareg(y ~ mean_topColi, data=tmp, link="loglog")
+summary(breg)
+
+
+new_int <- data.frame(mean_topColi=seq(min(tmp$mean_topColi), max(tmp$mean_topColi)+0.05, 0.05))
+new_int$y <- predict(breg, newdata=new_int)
+
+p3 <- ggplot(tmp, aes(mean_topColi, y)) + geom_point(pch=21, size=5, fill="skyblue") +
+  geom_line(aes(mean_topColi, y), data=new_int, linetype="twodash", color="blue", size=1) + theme_classic() +
+  scale_size(limits=c(50,100), breaks=c(60, 80, 100)) + scale_x_continuous(limits=c(0, 0.35)) +
+  labs(x="Relative ARG abundance", y="Proportion of resistant clinical isolates", title="C")
+
+```
+
+**Clinical aminoglycoside resistance**
+```{r}
+tmp <- ResData %>% filter(`AG_(n)`>100)
+tmp$y = tmp$`AG_(R%)`/100
+breg <- betareg(y ~ mean_topColi, data=tmp, link="loglog")
+summary(breg)
+
+
+new_int <- data.frame(mean_topColi=seq(min(tmp$mean_topColi), max(tmp$mean_topColi)+0.05, 0.05))
+new_int$y <- predict(breg, newdata=new_int)
+
+p4 <- ggplot(tmp, aes(mean_topColi, y)) + geom_point(pch=21, size=5, fill="skyblue") +
+  geom_line(aes(mean_topColi, y), data=new_int, linetype="twodash", color="blue", size=1) + theme_classic() +
+  scale_size(limits=c(50,100), breaks=c(60, 80, 100)) + scale_x_continuous(limits=c(0, 0.35)) +
+  labs(x="Relative ARG abundance", y="Proportion of resistant clinical isolates", title="D")
+```
+
+**Fig. 1: E. coli clinical resistance models based on ten most common ARGs in E. coli**
+```{r}
+grid.arrange(p1, p2, p3, p4)
+```
+
+
+### _E. coli_ clinical resistance models based on intI1 integrase gene 
+
+**Clinical aminopenicillin resistance**
+```{r}
+tmp <- ResData %>% filter(`AP_(n)`>100)
+tmp$y = tmp$`AP_(R%)`/100
+breg <- betareg(y ~ mean_int, data=tmp, link="loglog")
+summary(breg)
+
+
+new_int <- data.frame(mean_int=seq(min(tmp$mean_int), max(tmp$mean_int)+0.05, 0.05))
+new_int$y <- predict(breg, newdata=new_int)
+
+p1 <- ggplot(tmp, aes(mean_int, y)) + geom_point(pch=21, size=5, fill="skyblue") +
+  geom_line(aes(mean_int, y), data=new_int, linetype="twodash", color="blue", size=1) + theme_classic() +
+  scale_size(limits=c(50,100), breaks=c(60, 80, 100)) + scale_x_continuous(limits=c(0, 0.25)) +
+  labs(x=expression(paste("Relative ", italic("intI1"), " abundance", sep=" ")), y="Proportion of resistant clinical isolates", title="A")
+```
+
+**Clinical fluoroquinolone resistance**
+```{r}
+tmp <- ResData %>% filter(`FQ_(n)`>100)
+tmp$y = tmp$`FQ_(R%)`/100
+breg <- betareg(y ~ mean_int, data=tmp, link="loglog")
+summary(breg)
+
+
+new_int <- data.frame(mean_int=seq(min(tmp$mean_int), max(tmp$mean_int)+0.05, 0.05))
+new_int$y <- predict(breg, newdata=new_int)
+
+p2 <- ggplot(tmp, aes(mean_int, y)) + geom_point(pch=21, size=5, fill="skyblue") +
+  geom_line(aes(mean_int, y), data=new_int, linetype="twodash", color="blue", size=1) + theme_classic() +
+  scale_size(limits=c(50,100), breaks=c(60, 80, 100)) + scale_x_continuous(limits=c(0, 0.25)) +
+  labs(x=expression(paste("Relative ", italic("intI1"), " abundance", sep=" ")), y="Proportion of resistant clinical isolates", title="B")
+```
+
+**Clinical 3rd generation cephalosporin resistance**
+```{r}
+tmp <- ResData %>% filter(`3GC_(n)`>100)
+tmp$y = tmp$`3GC_(R%)`/100
+breg <- betareg(y ~ mean_int, data=tmp, link="loglog")
+summary(breg)
+
+
+new_int <- data.frame(mean_int=seq(min(tmp$mean_int), max(tmp$mean_int)+0.05, 0.05))
+new_int$y <- predict(breg, newdata=new_int)
+
+p3 <- ggplot(tmp, aes(mean_int, y)) + geom_point(pch=21, size=5, fill="skyblue") +
+  geom_line(aes(mean_int, y), data=new_int, linetype="twodash", color="blue", size=1) + theme_classic() +
+  scale_size(limits=c(50,100), breaks=c(60, 80, 100)) + scale_x_continuous(limits=c(0, 0.25)) +
+  labs(x=expression(paste("Relative ", italic("intI1"), " abundance", sep=" ")), y="Proportion of resistant clinical isolates", title="C")
+```
+
+**Clinical aminoglycoside resistance**
+```{r}
+tmp <- ResData %>% filter(`AG_(n)`>100)
+tmp$y = tmp$`AG_(R%)`/100
+breg <- betareg(y ~ mean_int, data=tmp, link="loglog")
+summary(breg)
+
+
+new_int <- data.frame(mean_int=seq(min(tmp$mean_int), max(tmp$mean_int)+0.05, 0.05))
+new_int$y <- predict(breg, newdata=new_int)
+
+p4 <- ggplot(tmp, aes(mean_int, y)) + geom_point(pch=21, size=5, fill="skyblue") +
+  geom_line(aes(mean_int, y), data=new_int, linetype="twodash", color="blue", size=1) + theme_classic() +
+  scale_size(limits=c(50,100), breaks=c(60, 80, 100)) + scale_x_continuous(limits=c(0, 0.25)) +
+  labs(x=expression(paste("Relative ", italic("intI1"), " abundance", sep=" ")), y="Proportion of resistant clinical isolates", title="D")
+```
+
+**Fig. 2: E. coli clinical resistance models based on intI1 integrase gene**
+```{r}
+grid.arrange(p1, p2, p3, p4)
+```
+
+## Supplementary Materials
 
 ### Suppl. Fig 1. 
