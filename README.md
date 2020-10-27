@@ -17,7 +17,8 @@ cutadapt -m 1 -e 0.2 -O 10 -g AGATCGGAAGAGC -G AGATCGGAAGAGC \
           SAMPLE_R1.fq.gz SAMPLE_R2.fq.gz
 ```
 
-After trimming the adapters the reads were converted from FASTQ to FASTA and all R1 and R2 reads combined. The combined R1 and R2 reads were searched for antibiotic resistance genes and _intI1_ integrase genes with [DIAMOND v.0.9.114](http://www.diamondsearch.org/index.php).  
+After trimming the adapters the reads were converted from FASTQ to FASTA and all R1 and R2 reads combined. The combined R1 and R2 reads were searched for antibiotic resistance genes (ARGs) and _intI1_ integrase genes with [DIAMOND v.0.9.114](http://www.diamondsearch.org/index.php) (Buchfink _et al._ 2015).  
+The ARG database was ResFinder (Zankari _et al._, 2012) and the _intI1_ integrase gene was from an MGE database (Pärnänen _et al._, 2019).
 
 The _E. coli_ connected ARGs were annotated in similar fashion (see Karkman _et al._, 2020 for details).
 
@@ -49,5 +50,9 @@ The data analysis steps and making of the figures in R are described in [here.](
 
 ## References
 
-* Karkman, A., Berglund, F. ...
+- Karkman, A., Berglund, F. ...
 - Hendriksen https://doi.org/10.1038/s41467-019-08853-3)
+- Martin 2011
+- Zankari
+- Pärnänen
+- Buchfink
