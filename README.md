@@ -9,7 +9,7 @@ This study is based on the sewage metagenome data from ***Global monitoring of a
 The clinical resistance and socioeconomical data sources are described in Table 2 in the article and can be found from the `Data` folder in this repository.
 
 ## Pre-processing
-Raw sequencing data was downloaded from European Nucleotide Archive (ENA) under the project accession [ERP015409](https://www.ebi.ac.uk/ena/browser/view/PRJEB13831) and remaining sequencing adapters were removed using [cutadapt v.2.7.](https://cutadapt.readthedocs.io/en/v2.7/).  
+Raw sequencing data was downloaded from European Nucleotide Archive (ENA) under the project accession [ERP015409](https://www.ebi.ac.uk/ena/browser/view/PRJEB13831) and remaining sequencing adapters were removed using [cutadapt v.2.7](https://cutadapt.readthedocs.io/en/v2.7/).  
 
 ```
 cutadapt -m 1 -e 0.2 -O 10 -g AGATCGGAAGAGC -G AGATCGGAAGAGC \
@@ -19,7 +19,7 @@ cutadapt -m 1 -e 0.2 -O 10 -g AGATCGGAAGAGC -G AGATCGGAAGAGC \
 
 After trimming the adapters the reads were converted from FASTQ to FASTA and all R1 and R2 reads combined. The combined R1 and R2 reads were searched for antibiotic resistance genes and _intI1_ integrase genes with [DIAMOND v.0.9.114](http://www.diamondsearch.org/index.php).  
 
-The _E. coli_ connected ARGs were annotated in similar way.
+The _E. coli_ connected ARGs were annotated in similar fashion (see article for details).
 
 ```
 # R1 reads
