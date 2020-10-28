@@ -4,7 +4,7 @@ author: "Antti Karkman"
 ---
 
 ```{r, echo=FALSE, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, fig.width=10, fig.height=5)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
 
 # Short Introduction 
@@ -32,7 +32,7 @@ Load all needed libraries.
 library(vegan)
 library(tidyverse)
 library(MASS)
-library(gridExtra)
+#library(gridExtra)
 library(GGally)
 library(betareg)
 library(lmtest)
@@ -50,6 +50,9 @@ glimpse(ResData)
 ## Main Article
 
 ### _E. coli_ clinical resistance models based on ten most common ARGs in _E. coli_ 
+
+The first and maybe most obvious approach was to use the 10 most common ResFinder ARGs in publicly available _E. coli_ genomes in predicting clinical resistance in _E. coli_.  
+Results from beta regression models for the four resistance categories and Figure 1 from the article presented below. 
 
 **Clinical aminopenicillin resistance**
 ```{r}
@@ -121,12 +124,15 @@ p4 <- ggplot(tmp, aes(mean_topColi, y)) + geom_point(pch=21, size=5, fill="skybl
 ```
 
 **Fig. 1: E. coli clinical resistance models based on ten most common ARGs in E. coli**
-```{r}
-grid.arrange(p1, p2, p3, p4)
+```{r, fig.width=10, fig.height=6}
+(p1 + p2) /  (p3 + p4)
 ```
 
 
 ### _E. coli_ clinical resistance models based on intI1 integrase gene 
+
+Next spet was to use _intI1_ integrase gene as a proxy for antibiotic resistance gene prevalence in sewage samples. 
+The results from this approach ands Figure 2 from the article below. 
 
 **Clinical aminopenicillin resistance**
 ```{r}
@@ -197,8 +203,234 @@ p4 <- ggplot(tmp, aes(mean_int, y)) + geom_point(pch=21, size=5, fill="skyblue")
 ```
 
 **Fig. 2: E. coli clinical resistance models based on intI1 integrase gene**
+```{r, fig.width=10, fig.height=6}
+(p1 + p2) /  (p3 + p4)
+```
+
+### Aggregated resistance model based on intI1 integrase gene
+
+Although the two approaches performed equally well, the _intI1_ approach was chosen due to its simplicity compared to the top ARGs in _E.  coli_. 
+So _intI1_ integrase gene abundance was used to model the aggregated resistance index. Results from beta regression model and Figure 3 below. With all data and with Nigeria and Peru removed from the analysis. 
+
+**With all data**
 ```{r}
-grid.arrange(p1, p2, p3, p4)
+tmp <- ResData
+tmp$y = tmp$AverageAll/100
+breg <- betareg(y ~ mean_int, data=tmp, link="loglog")
+summary(breg)
+
+
+new_int <- data.frame(mean_int=seq(min(tmp$mean_int), max(tmp$mean_int)+0.05, 0.05))
+new_int$y <- predict(breg, newdata=new_int)
+
+p1 <- ggplot(tmp, aes(mean_int, y)) + geom_point(pch=21, size=5, fill="skyblue") +
+  geom_line(aes(mean_int, y), data=new_int, linetype="twodash", color="blue", size=1) + theme_classic() +
+  scale_y_continuous(limits=c(0,0.7)) +
+  labs(x=expression(paste("Relative ", italic("intI1"), " abundance", sep=" ")), y="Aggregated proportion of resistant isolates",
+       title="A")
+```
+
+**With outliers removed**
+```{r}
+tmp <- ResData
+tmp$y = tmp$AverageAll/100
+tmp <- tmp %>% filter(!(Country=="Nigeria" | Country=="Peru"))
+breg <- betareg(y ~ mean_int, data=tmp, link="loglog")
+summary(breg)
+
+new_int <- data.frame(mean_int=seq(min(tmp$mean_int), max(tmp$mean_int)+0.05, 0.05))
+new_int$y <- predict(breg, newdata=new_int)
+
+p2 <- ggplot(tmp, aes(mean_int, y)) + geom_point(pch=21, size=5, fill="skyblue") +
+  geom_line(aes(mean_int, y), data=new_int, linetype="twodash", color="blue", size=1) + theme_classic() +
+  scale_x_continuous(limits=c(0,0.3)) + scale_y_continuous(limits=c(0,0.7)) +
+  labs(x=expression(paste("Relative ", italic("intI1"), " abundance", sep=" ")), y="Aggregated proportion of resistant isolates",
+       title="B")
+```
+
+**Fig. 3: Aggregated resistance model based on intI1 integrase gene.**
+```{r, fig.width=10, fig.height=3}
+p1 + p2
+```
+
+### E. coli clinical resistance models based on combined sewage and socioeconomical data
+
+It is clear from the results that sewage data alone is not enough for modeling clinical resistance prevalence. To improve the performance, we included socioeconomic factors to the models. 
+We used GDP, proportion of urban population and basic sanotation index in combination with the sewage data (_intI1_) to model clinical resistance prevalence in _E. coli_ and more broadly using the aggregated resistance index. 
+
+**Amniopenicillin resistance**
+```{r}
+tmp <- ResData %>% filter(`AP_(n)`>100)
+tmp$y = tmp$`AP_(R%)`/100
+
+breg <- betareg(y ~  log(GDP) + urban_population + basic_sanitation + mean_int, data=tmp, link="loglog")
+new_int0 <- data.frame(mean_int=seq(min(tmp$mean_int), max(tmp$mean_int)+0.05, 0.05),
+                       urban_population=quantile(tmp$urban_population)[2], basic_sanitation=quantile(tmp$basic_sanitation)[2],
+                       GDP=quantile(tmp$GDP)[2])
+new_int5 <- data.frame(mean_int=seq(min(tmp$mean_int), max(tmp$mean_int)+0.05, 0.05),
+                      urban_population=quantile(tmp$urban_population)[3], basic_sanitation=quantile(tmp$basic_sanitation)[3],
+                      GDP=quantile(tmp$GDP)[3])
+new_int9 <- data.frame(mean_int=seq(min(tmp$mean_int), max(tmp$mean_int)+0.05, 0.05),
+                       urban_population=quantile(tmp$urban_population)[4], basic_sanitation=quantile(tmp$basic_sanitation)[4],
+                       GDP=quantile(tmp$GDP)[4])
+
+new_int0$y <- predict(breg, newdata=new_int0)
+new_int5$y <- predict(breg, newdata=new_int5)
+new_int9$y <- predict(breg, newdata=new_int9)
+
+p1 <- ggplot(tmp, aes(mean_int, y, size=basic_sanitation, fill=urban_population)) + geom_point(pch=21) +
+  geom_line(aes(mean_int, y), data=new_int0, linetype="twodash", color="darkblue", size=1) +
+  geom_line(aes(mean_int, y), data=new_int5, linetype="twodash", color="blue", size=1) +
+  geom_line(aes(mean_int, y), data=new_int9, linetype="twodash", color="lightblue", size=1) + theme_classic() +
+  scale_size(limits=c(min(tmp$basic_sanitation),max(tmp$basic_sanitation)),
+             breaks=c(60, 80, 100), name="Basic sanitation") +
+  scale_x_continuous(limits=c(0, 0.25)) +
+  scale_fill_gradient(limits=c(min(tmp$urban_population), max(tmp$urban_population)),
+                      breaks=c(20, 40, 60, 80,100), name="Urban population") +
+  labs(x=expression(paste("Relative ", italic("intI1"), " abundance", sep=" ")), y="Proportion of resistant clinical isolates",
+       title="A")
+```
+
+**Fluoroquinolone resistance**
+```{r}
+tmp <- ResData %>% filter(`FQ_(n)`>100)
+tmp$y = tmp$`FQ_(R%)`/100
+
+breg <- betareg(y ~ log(GDP) + urban_population + basic_sanitation + mean_int, data=tmp, link="loglog")
+new_int0 <- data.frame(mean_int=seq(min(tmp$mean_int), max(tmp$mean_int)+0.05, 0.05),
+                       urban_population=quantile(tmp$urban_population)[2], basic_sanitation=quantile(tmp$basic_sanitation)[2],
+                       GDP=quantile(tmp$GDP)[2])
+new_int5 <- data.frame(mean_int=seq(min(tmp$mean_int), max(tmp$mean_int)+0.05, 0.05),
+                      urban_population=quantile(tmp$urban_population)[3], basic_sanitation=quantile(tmp$basic_sanitation)[3],
+                      GDP=quantile(tmp$GDP)[3])
+new_int9 <- data.frame(mean_int=seq(min(tmp$mean_int), max(tmp$mean_int)+0.05, 0.05),
+                       urban_population=quantile(tmp$urban_population)[4], basic_sanitation=quantile(tmp$basic_sanitation)[4],
+                       GDP=quantile(tmp$GDP)[4])
+
+new_int0$y <- predict(breg, newdata=new_int0)
+new_int5$y <- predict(breg, newdata=new_int5)
+new_int9$y <- predict(breg, newdata=new_int9)
+
+p2 <- ggplot(tmp, aes(mean_int, y, fill=urban_population, size=basic_sanitation)) + geom_point(pch=21) +
+  geom_line(aes(mean_int, y), data=new_int0, linetype="twodash", color="darkblue", size=1) +
+  geom_line(aes(mean_int, y), data=new_int5, linetype="twodash", color="blue", size=1) +
+  geom_line(aes(mean_int, y), data=new_int9, linetype="twodash", color="lightblue", size=1) + theme_classic() +
+  scale_size(limits=c(min(tmp$basic_sanitation),max(tmp$basic_sanitation)),
+             breaks=c(60, 80, 100), name="Basic sanitation") +
+  scale_x_continuous(limits=c(0, 0.25)) +
+  scale_fill_gradient(limits=c(min(tmp$urban_population), max(tmp$urban_population)),
+                      breaks=c(20, 40, 60, 80,100), name="Urban population") +
+  labs(x=expression(paste("Relative ", italic("intI1"), " abundance", sep=" ")), y="Proportion of resistant clinical isolates",
+       title="B")
+```
+
+**3rd generation cephalosporins**
+```{r}
+tmp <- ResData %>% filter(`3GC_(n)`>100)
+tmp$y = tmp$`3GC_(R%)`/100
+
+breg <- betareg(y ~  log(GDP) + urban_population + basic_sanitation + mean_int, data=tmp, link="loglog")
+new_int0 <- data.frame(mean_int=seq(min(tmp$mean_int), max(tmp$mean_int)+0.05, 0.05),
+                       urban_population=quantile(tmp$urban_population)[2], basic_sanitation=quantile(tmp$basic_sanitation)[2],
+                       GDP=quantile(tmp$GDP)[2])
+new_int5 <- data.frame(mean_int=seq(min(tmp$mean_int), max(tmp$mean_int)+0.05, 0.05),
+                      urban_population=quantile(tmp$urban_population)[3], basic_sanitation=quantile(tmp$basic_sanitation)[3],
+                      GDP=quantile(tmp$GDP)[3])
+new_int9 <- data.frame(mean_int=seq(min(tmp$mean_int), max(tmp$mean_int)+0.05, 0.05),
+                       urban_population=quantile(tmp$urban_population)[4], basic_sanitation=quantile(tmp$basic_sanitation)[4],
+                       GDP=quantile(tmp$GDP)[4])
+
+new_int0$y <- predict(breg, newdata=new_int0)
+new_int5$y <- predict(breg, newdata=new_int5)
+new_int9$y <- predict(breg, newdata=new_int9)
+
+p3 <- ggplot(tmp, aes(mean_int, y, size=basic_sanitation, fill=urban_population)) + geom_point(pch=21) +
+  geom_line(aes(mean_int, y), data=new_int0, linetype="twodash", color="darkblue", size=1) +
+  geom_line(aes(mean_int, y), data=new_int5, linetype="twodash", color="blue", size=1) +
+  geom_line(aes(mean_int, y), data=new_int9, linetype="twodash", color="lightblue", size=1) + theme_classic() +
+  scale_size(limits=c(min(tmp$basic_sanitation),max(tmp$basic_sanitation)),
+             breaks=c(60, 80, 100), name="Basic sanitation") +
+  scale_x_continuous(limits=c(0, 0.25)) +
+  scale_fill_gradient(limits=c(min(tmp$urban_population), max(tmp$urban_population)),
+                      breaks=c(20, 40, 60, 80,100), name="Urban population") +
+  labs(x=expression(paste("Relative ", italic("intI1"), " abundance", sep=" ")), y="Proportion of resistant clinical isolates",
+       title="C")
+```
+
+**Amoinoglycoside resistance**
+```{r}
+tmp <- ResData %>% filter(`AG_(n)`>100)
+tmp$y = tmp$`AG_(R%)`/100
+
+breg <- betareg(y ~  log(GDP) + urban_population + basic_sanitation + mean_int, data=tmp, link="loglog")
+new_int0 <- data.frame(mean_int=seq(min(tmp$mean_int), max(tmp$mean_int)+0.05, 0.05),
+                       urban_population=quantile(tmp$urban_population)[2], basic_sanitation=quantile(tmp$basic_sanitation)[2],
+                       GDP=quantile(tmp$GDP)[2])
+new_int5 <- data.frame(mean_int=seq(min(tmp$mean_int), max(tmp$mean_int)+0.05, 0.05),
+                      urban_population=quantile(tmp$urban_population)[3], basic_sanitation=quantile(tmp$basic_sanitation)[3],
+                      GDP=quantile(tmp$GDP)[3])
+new_int9 <- data.frame(mean_int=seq(min(tmp$mean_int), max(tmp$mean_int)+0.05, 0.05),
+                       urban_population=quantile(tmp$urban_population)[4], basic_sanitation=quantile(tmp$basic_sanitation)[4],
+                       GDP=quantile(tmp$GDP)[4])
+
+new_int0$y <- predict(breg, newdata=new_int0)
+new_int5$y <- predict(breg, newdata=new_int5)
+new_int9$y <- predict(breg, newdata=new_int9)
+
+p4 <- ggplot(tmp, aes(mean_int, y, size=basic_sanitation, fill=urban_population)) + geom_point(pch=21) +
+  geom_line(aes(mean_int, y), data=new_int0, linetype="twodash", color="darkblue", size=1) +
+  geom_line(aes(mean_int, y), data=new_int5, linetype="twodash", color="blue", size=1) +
+  geom_line(aes(mean_int, y), data=new_int9, linetype="twodash", color="lightblue", size=1) + theme_classic() +
+  scale_size(limits=c(min(tmp$basic_sanitation),max(tmp$basic_sanitation)),
+             breaks=c(60, 80, 100), name="Basic sanitation") +
+  scale_x_continuous(limits=c(0, 0.25)) +
+  scale_fill_gradient(limits=c(min(tmp$urban_population), max(tmp$urban_population)),
+                      breaks=c(20, 40, 60, 80,100), name="Urban population") +
+  labs(x=expression(paste("Relative ", italic("intI1"), " abundance", sep=" ")), y="Proportion of resistant clinical isolates",
+       title="D")
+```
+
+**Fig. 4: E. coli clinical resistance models based on combined sewage and socioeconomical data**
+```{r, fig.width=10, fig.height=7}
+(p1 + p2) /  (p3 + p4) +
+  plot_layout(guides = 'collect') & theme(legend.position='bottom')
+```
+
+**Aggretgated resistance index**
+```{r}
+tmp <- ResData
+tmp$y = tmp$AverageAll/100
+tmp <- tmp %>% filter(!(Country=="Nigeria" | Country=="Peru" | Country=="Kosovo"))
+
+breg <- betareg(y ~  log(GDP) + urban_population + basic_sanitation + mean_int, data=tmp, link="loglog")
+new_int0 <- data.frame(mean_int=seq(min(tmp$mean_int), max(tmp$mean_int)+0.05, 0.05),
+                       basic_sanitation=quantile(tmp$basic_sanitation)[2],
+                       urban_population=quantile(tmp$urban_population)[2], GDP=quantile(tmp$GDP)[2])
+new_int5 <- data.frame(mean_int=seq(min(tmp$mean_int), max(tmp$mean_int)+0.05, 0.05),
+                       basic_sanitation=quantile(tmp$basic_sanitation)[3],
+                      urban_population=quantile(tmp$urban_population)[3], GDP=quantile(tmp$GDP)[3])
+new_int9 <- data.frame(mean_int=seq(min(tmp$mean_int), max(tmp$mean_int)+0.05, 0.05),
+                       basic_sanitation=quantile(tmp$basic_sanitation)[4],
+                       urban_population=quantile(tmp$urban_population)[4], GDP=quantile(tmp$GDP)[4])
+
+new_int0$y <- predict(breg, newdata=new_int0)
+new_int5$y <- predict(breg, newdata=new_int5)
+new_int9$y <- predict(breg, newdata=new_int9)
+```
+
+**Fig. 5: Aggregated resistance model based on combined sewage and socioeconomical data**
+```{r, fig.width=10, fig.height=4}
+ggplot(tmp, aes(mean_int, y, size=basic_sanitation, fill=urban_population)) + geom_point(pch=21) +
+  geom_line(aes(mean_int, y), data=new_int0, linetype="twodash", color="darkblue", size=1) +
+  geom_line(aes(mean_int, y), data=new_int5, linetype="twodash", color="blue", size=1) +
+  geom_line(aes(mean_int, y), data=new_int9, linetype="twodash", color="lightblue", size=1) + theme_classic() +
+  scale_size(limits=c(min(tmp$basic_sanitation),max(tmp$basic_sanitation)),
+             breaks=c(60, 80, 100), name="Basic sanitation") +
+  scale_x_continuous(limits=c(0, 0.25)) +
+  scale_fill_gradient(limits=c(min(tmp$urban_population), max(tmp$urban_population)),
+                      breaks=c(20, 40, 60, 80,100), name="Urban population") +
+  labs(x=expression(paste("Relative ", italic("intI1"), " abundance", sep=" ")), y="Aggregated proportion of resistant isolates",
+       title="")
 ```
 
 ## Supplementary Materials
