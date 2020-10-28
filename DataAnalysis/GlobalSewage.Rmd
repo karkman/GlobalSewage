@@ -264,6 +264,8 @@ tmp <- ResData %>% filter(`AP_(n)`>100)
 tmp$y = tmp$`AP_(R%)`/100
 
 breg <- betareg(y ~  log(GDP) + urban_population + basic_sanitation + mean_int, data=tmp, link="loglog")
+summary(breg)
+
 new_int0 <- data.frame(mean_int=seq(min(tmp$mean_int), max(tmp$mean_int)+0.05, 0.05),
                        urban_population=quantile(tmp$urban_population)[2], basic_sanitation=quantile(tmp$basic_sanitation)[2],
                        GDP=quantile(tmp$GDP)[2])
@@ -297,6 +299,8 @@ tmp <- ResData %>% filter(`FQ_(n)`>100)
 tmp$y = tmp$`FQ_(R%)`/100
 
 breg <- betareg(y ~ log(GDP) + urban_population + basic_sanitation + mean_int, data=tmp, link="loglog")
+summary(breg)
+
 new_int0 <- data.frame(mean_int=seq(min(tmp$mean_int), max(tmp$mean_int)+0.05, 0.05),
                        urban_population=quantile(tmp$urban_population)[2], basic_sanitation=quantile(tmp$basic_sanitation)[2],
                        GDP=quantile(tmp$GDP)[2])
@@ -330,6 +334,8 @@ tmp <- ResData %>% filter(`3GC_(n)`>100)
 tmp$y = tmp$`3GC_(R%)`/100
 
 breg <- betareg(y ~  log(GDP) + urban_population + basic_sanitation + mean_int, data=tmp, link="loglog")
+summary(breg)
+
 new_int0 <- data.frame(mean_int=seq(min(tmp$mean_int), max(tmp$mean_int)+0.05, 0.05),
                        urban_population=quantile(tmp$urban_population)[2], basic_sanitation=quantile(tmp$basic_sanitation)[2],
                        GDP=quantile(tmp$GDP)[2])
@@ -363,6 +369,8 @@ tmp <- ResData %>% filter(`AG_(n)`>100)
 tmp$y = tmp$`AG_(R%)`/100
 
 breg <- betareg(y ~  log(GDP) + urban_population + basic_sanitation + mean_int, data=tmp, link="loglog")
+summary(breg)
+
 new_int0 <- data.frame(mean_int=seq(min(tmp$mean_int), max(tmp$mean_int)+0.05, 0.05),
                        urban_population=quantile(tmp$urban_population)[2], basic_sanitation=quantile(tmp$basic_sanitation)[2],
                        GDP=quantile(tmp$GDP)[2])
@@ -396,13 +404,15 @@ p4 <- ggplot(tmp, aes(mean_int, y, size=basic_sanitation, fill=urban_population)
   plot_layout(guides = 'collect') & theme(legend.position='bottom')
 ```
 
-**Aggretgated resistance index**
+**Aggregated resistance index**
 ```{r}
 tmp <- ResData
 tmp$y = tmp$AverageAll/100
 tmp <- tmp %>% filter(!(Country=="Nigeria" | Country=="Peru" | Country=="Kosovo"))
 
 breg <- betareg(y ~  log(GDP) + urban_population + basic_sanitation + mean_int, data=tmp, link="loglog")
+summary(breg)
+
 new_int0 <- data.frame(mean_int=seq(min(tmp$mean_int), max(tmp$mean_int)+0.05, 0.05),
                        basic_sanitation=quantile(tmp$basic_sanitation)[2],
                        urban_population=quantile(tmp$urban_population)[2], GDP=quantile(tmp$GDP)[2])
