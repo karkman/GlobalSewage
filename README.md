@@ -1,7 +1,5 @@
 # GlobalSewage Project
 
-## This repository is under construction
-
 This repository contains all data analysis for ***Predicting clinical resistance prevalence using sewage metagenomic data*** (Karkman _et al._, 2020).
 
 This study is based on the sewage metagenome data from ***Global monitoring of antimicrobial resistance based on metagenomics analyses of urban sewage*** by Hendriksen _et al_. (2019). The data consists of 234 sewage metagenomemes from 62 countries. These metagenomes used in this study can be downloaded from ENA under project accession number ERP015409 or from SRA under project accession PRJEB13831.
