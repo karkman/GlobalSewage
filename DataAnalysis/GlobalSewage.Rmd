@@ -33,11 +33,9 @@ Load all needed libraries.
 ```{r, message=FALSE, warning=FALSE}
 library(vegan)
 library(tidyverse)
-library(MASS)
-#library(gridExtra)
 library(GGally)
 library(betareg)
-library(lmtest)
+#library(lmtest)
 library(pheatmap)
 library(patchwork)
 ```
@@ -557,7 +555,59 @@ ggplot() +
 
 The supplementary materials are presented below. 
 
+### Suppl. Table 1. 
+```{r}
+tmp <- ResData %>% filter(`AP_(n)`>100)
+tmp$y = tmp$`AP_(R%)`/100
+breg <- betareg(y ~  log(GDP) + urban_population + basic_sanitation, data=tmp, link="loglog")
+summary(breg)
+
+# FQ
+tmp <- ResData %>% filter(`FQ_(n)`>100)
+tmp$y = tmp$`FQ_(R%)`/100
+breg <- betareg(y ~  log(GDP) + urban_population + basic_sanitation, data=tmp, link="loglog")
+summary(breg)
+
+# 3GC
+tmp <- ResData %>% filter(`3GC_(n)`>100)
+tmp$y = tmp$`3GC_(R%)`/100
+breg <- betareg(y ~ log(GDP) + urban_population + basic_sanitation, data=tmp, link="loglog")
+summary(breg)
+
+# AG
+tmp <- ResData %>% filter(`AG_(n)`>100)
+tmp$y = tmp$`AG_(R%)`/100
+breg <- betareg(y ~   log(GDP) + urban_population + basic_sanitation, data=tmp, link="loglog")
+summary(breg)
+
+# AverageAll
+tmp <-  ResData
+tmp$y = tmp$AverageAll/100
+breg <- betareg(y ~  log(GDP) + urban_population + basic_sanitation, data=tmp, link="loglog")
+summary(breg)
+```
+
+
 ### Suppl. Fig 1. 
+```{r, fig.height=6, fig.width=8}
+old_par <- par()
+par(mar=c(4,4,2,2))
+keep_cols <- c( "AP_(R%)", "FQ_(R%)", "3GC_(R%)", "AG_(R%)", "AverageAll")
+cc_vec <- ResData[,keep_cols] %>% complete.cases()
+complete_AB_data <- data.frame(ResData[cc_vec, keep_cols])
+colnames(complete_AB_data) <-  c("AP (R%)", "FQ (R%)", "3GC (R%)", "AG (R%)", "AverageAll")
+ggpairs(complete_AB_data, lower = list(continuous = wrap("points", alpha = 0.5, size=2)))
+```
+
+### Suppl. Fig. 5
+```{r, fig.height=8, fig.width=10}
+old_par <- par()
+par(mar=c(4,4,2,2))
+keep_cols <- c( "GDP", "basic_sanitation", "basic_drinking_water", "urban_population", "access_electricity")
+cc_vec <- ResData[,keep_cols] %>% complete.cases()
+complete_AB_data <- data.frame(ResData[cc_vec, keep_cols])
+ggpairs(complete_AB_data, lower = list(continuous = wrap("points", alpha = 0.5, size=2)))
+```
 
 ### Suppl. Fig. 7.
 ```{r, fig.width=10, fig.height=6}
@@ -632,3 +682,19 @@ p4 <- ggplot() +
 
 ```
 
+### Suppl. Fig. 8.
+```{r, fig.width=12, fig.height=10}
+old_par <- par()
+par(mar=c(4,4,2,2))
+keep_cols <- c("GDP", "basic_sanitation", "basic_drinking_water", "urban_population", "access_electricity",  
+               "AP_(R%)", "FQ_(R%)", "3GC_(R%)", "AG_(R%)", "mean_res", "mean_int")
+cc_vec <- ResData[,keep_cols] %>% complete.cases()
+complete_AB_data <- data.frame(ResData[cc_vec, keep_cols])
+ggpairs(complete_AB_data, lower = list(continuous = wrap("points", alpha = 0.5, size=2)))
+```
+
+
+# Session Info
+```{r}
+sessionInfo()
+```
