@@ -50,9 +50,9 @@ The data analysis steps and making of the figures in R can be found [from here.]
 
 ## References
 
-- Karkman, A., Berglund, F. ...
-- Hendriksen https://doi.org/10.1038/s41467-019-08853-3)
-- Martin 2011
-- Zankari
-- Pärnänen
-- Buchfink
+- Karkman, A., Berglund, F., Flach, C-F, Kristiansson, E., Larsson, DGJ. 2020. Predicting clinical resistance prevalence using sewage metagenomic data. _Accepted in Communications Biology__
+- Hendriksen, R.S., Munk, P., Njage, P., van Bunnik, B., McNally, L., Lukjancenko, O., Röder, T., Nieuwenhuijse, D., Pedersen, S.K., Kjeldgaard, J., et al. (2019). Global monitoring of antimicrobial resistance based on metagenomics analyses of urban sewage. Nat Commun 10, 1124. https://doi.org/10.1038/s41467-019-08853-3
+- Martin, M. (2011). Cutadapt removes adapter sequences from high-throughput sequencing reads. EMBnet.Journal 17, 10.
+- Zankari, E., Hasman, H., Cosentino, S., Vestergaard, M., Rasmussen, S., Lund, O., Aarestrup, F.M., and Larsen, M.V. (2012). Identification of acquired antimicrobial resistance genes. Journal of Antimicrobial Chemotherapy 67, 2640–2644.
+- Pärnänen, K.M.M., Narciso-da-Rocha, C., Kneis, D., Berendonk, T.U., Cacace, D., Do, T.T., Elpers, C., Fatta-Kassinos, D., Henriques, I., Jaeger, T., et al. (2019). Antibiotic resistance in European wastewater treatment plants mirrors the pattern of clinical antibiotic resistance prevalence. Sci. Adv. 5, eaau9124.
+- Buchfink, B., Xie, C., and Huson, D.H. (2015). Fast and sensitive protein alignment using DIAMOND. Nature Methods 12, 59–60.
