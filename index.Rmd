@@ -6,7 +6,7 @@ output:
   html_document:
     theme: cosmo
     toc: true
-    toc_depth: 3
+    toc_depth: 4
     fig_caption: true
     fig_width: 6
     fig_height: 4

@@ -8,6 +8,8 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
 
 # Short Introduction 
+
+## Objectives
 The main objective of this project is to use untreated sewage as a marker for antibiotic resistance prevalence in clinical pathogens.  
 We want to test whether sewage meatgenomic could be used to predict clinical resistance. 
 
@@ -46,6 +48,12 @@ Read in the data and have a look.
 load("../Data/GlobalSewage.R", verbose=TRUE)
 glimpse(ResData)
 ```
+The data consists of sewage metagenomic resistance marker data, clinical resistance data and socio-economical factors for 62 countries. The clinical resistance data shows the proportion of resistant isolates (`%R`) and total number of isolates (`n`).  
+`Average All` is the aggregated resistance index from  [Collignon *et al.*, 2018](https://doi.org/10.1016/S2542-5196(18)30186-4).  
+`mean_res` is the normalizsed resistance gene count and `mean_int` the normalized _intI1_ integrase gene count.  
+`mean_coliRes`and `mean_topColi` are all and top 10 _E. coli_ associated ARGs in the sewage metagenomes, respectively.  
+`mean_AG`, `mean_BL` and `mean_FQ` are the normalized gene counts for resistance genes against aminoglycosides, beta-lactams and fluoroquinolones, respectively.  
+`GDP`, `basic_sanitation` and `urban_population` are the socio-economical factors used in the models and taken from World Bank Databank. 
 
 ## Main Article
 
@@ -54,7 +62,7 @@ glimpse(ResData)
 The first and maybe most obvious approach was to use the 10 most common ResFinder ARGs in publicly available _E. coli_ genomes in predicting clinical resistance in _E. coli_.  
 Results from beta regression models for the four resistance categories and Figure 1 from the article presented below. 
 
-**Clinical aminopenicillin resistance**
+#### Clinical aminopenicillin resistance
 ```{r}
 tmp <- ResData %>% filter(`AP_(n)`>100)
 tmp$y = tmp$`AP_(R%)`/100
@@ -71,7 +79,7 @@ p1 <- ggplot(tmp, aes(mean_topColi, y)) + geom_point(pch=21, size=5, fill="skybl
   labs(x="Relative ARG abundance", y="Proportion of resistant clinical isolates", title="A")
 ```
 
-**Clinical fluoroquinolone resistance**
+#### Clinical fluoroquinolone resistance
 ```{r}
 tmp <- ResData %>% filter(`FQ_(n)`>100)
 tmp$y = tmp$`FQ_(R%)`/100
@@ -88,7 +96,7 @@ p2 <- ggplot(tmp, aes(mean_topColi, y)) + geom_point(pch=21, size=5, fill="skybl
   labs(x="Relative ARG abundance", y="Proportion of resistant clinical isolates", title="B")
 ```
 
-**Clinical 3rd generation cephalosporin resistance**
+#### Clinical 3rd generation cephalosporin resistance
 ```{r}
 tmp <- ResData %>% filter(`3GC_(n)`>100)
 tmp$y = tmp$`3GC_(R%)`/100
@@ -106,7 +114,7 @@ p3 <- ggplot(tmp, aes(mean_topColi, y)) + geom_point(pch=21, size=5, fill="skybl
 
 ```
 
-**Clinical aminoglycoside resistance**
+#### Clinical aminoglycoside resistance
 ```{r}
 tmp <- ResData %>% filter(`AG_(n)`>100)
 tmp$y = tmp$`AG_(R%)`/100
@@ -123,18 +131,18 @@ p4 <- ggplot(tmp, aes(mean_topColi, y)) + geom_point(pch=21, size=5, fill="skybl
   labs(x="Relative ARG abundance", y="Proportion of resistant clinical isolates", title="D")
 ```
 
-**Fig. 1: E. coli clinical resistance models based on ten most common ARGs in E. coli**
+#### Figure 1
 ```{r, fig.width=10, fig.height=6}
 (p1 + p2) /  (p3 + p4)
 ```
-
+**Fig. 1: E. coli clinical resistance models based on ten most common ARGs in E. coli**
 
 ### _E. coli_ clinical resistance models based on intI1 integrase gene 
 
 Next spet was to use _intI1_ integrase gene as a proxy for antibiotic resistance gene prevalence in sewage samples. 
 The results from this approach ands Figure 2 from the article below. 
 
-**Clinical aminopenicillin resistance**
+#### Clinical aminopenicillin resistance
 ```{r}
 tmp <- ResData %>% filter(`AP_(n)`>100)
 tmp$y = tmp$`AP_(R%)`/100
@@ -151,7 +159,7 @@ p1 <- ggplot(tmp, aes(mean_int, y)) + geom_point(pch=21, size=5, fill="skyblue")
   labs(x=expression(paste("Relative ", italic("intI1"), " abundance", sep=" ")), y="Proportion of resistant clinical isolates", title="A")
 ```
 
-**Clinical fluoroquinolone resistance**
+#### Clinical fluoroquinolone resistance
 ```{r}
 tmp <- ResData %>% filter(`FQ_(n)`>100)
 tmp$y = tmp$`FQ_(R%)`/100
@@ -168,7 +176,7 @@ p2 <- ggplot(tmp, aes(mean_int, y)) + geom_point(pch=21, size=5, fill="skyblue")
   labs(x=expression(paste("Relative ", italic("intI1"), " abundance", sep=" ")), y="Proportion of resistant clinical isolates", title="B")
 ```
 
-**Clinical 3rd generation cephalosporin resistance**
+#### Clinical 3rd generation cephalosporin resistance
 ```{r}
 tmp <- ResData %>% filter(`3GC_(n)`>100)
 tmp$y = tmp$`3GC_(R%)`/100
@@ -185,7 +193,7 @@ p3 <- ggplot(tmp, aes(mean_int, y)) + geom_point(pch=21, size=5, fill="skyblue")
   labs(x=expression(paste("Relative ", italic("intI1"), " abundance", sep=" ")), y="Proportion of resistant clinical isolates", title="C")
 ```
 
-**Clinical aminoglycoside resistance**
+#### Clinical aminoglycoside resistance
 ```{r}
 tmp <- ResData %>% filter(`AG_(n)`>100)
 tmp$y = tmp$`AG_(R%)`/100
@@ -202,17 +210,18 @@ p4 <- ggplot(tmp, aes(mean_int, y)) + geom_point(pch=21, size=5, fill="skyblue")
   labs(x=expression(paste("Relative ", italic("intI1"), " abundance", sep=" ")), y="Proportion of resistant clinical isolates", title="D")
 ```
 
-**Fig. 2: E. coli clinical resistance models based on intI1 integrase gene**
+#### Figure 2
 ```{r, fig.width=10, fig.height=6}
 (p1 + p2) /  (p3 + p4)
 ```
+**Fig. 2: E. coli clinical resistance models based on intI1 integrase gene**
 
 ### Aggregated resistance model based on intI1 integrase gene
 
 Although the two approaches performed equally well, the _intI1_ approach was chosen due to its simplicity compared to the top ARGs in _E.  coli_. 
 So _intI1_ integrase gene abundance was used to model the aggregated resistance index. Results from beta regression model and Figure 3 below. With all data and with Nigeria and Peru removed from the analysis. 
 
-**With all data**
+#### With all data
 ```{r}
 tmp <- ResData
 tmp$y = tmp$AverageAll/100
@@ -230,7 +239,7 @@ p1 <- ggplot(tmp, aes(mean_int, y)) + geom_point(pch=21, size=5, fill="skyblue")
        title="A")
 ```
 
-**With outliers removed**
+#### With outliers removed
 ```{r}
 tmp <- ResData
 tmp$y = tmp$AverageAll/100
@@ -248,17 +257,18 @@ p2 <- ggplot(tmp, aes(mean_int, y)) + geom_point(pch=21, size=5, fill="skyblue")
        title="B")
 ```
 
-**Fig. 3: Aggregated resistance model based on intI1 integrase gene.**
+#### Figure 3
 ```{r, fig.width=10, fig.height=3}
 p1 + p2
 ```
+**Fig. 3: Aggregated resistance model based on intI1 integrase gene**
 
 ### E. coli clinical resistance models based on combined sewage and socioeconomical data
 
 It is clear from the results that sewage data alone is not enough for modeling clinical resistance prevalence. To improve the performance, we included socioeconomic factors to the models. 
 We used GDP, proportion of urban population and basic sanotation index in combination with the sewage data (_intI1_) to model clinical resistance prevalence in _E. coli_ and more broadly using the aggregated resistance index. 
 
-**Amniopenicillin resistance**
+#### Amniopenicillin resistance
 ```{r}
 tmp <- ResData %>% filter(`AP_(n)`>100)
 tmp$y = tmp$`AP_(R%)`/100
@@ -293,7 +303,7 @@ p1 <- ggplot(tmp, aes(mean_int, y, size=basic_sanitation, fill=urban_population)
        title="A")
 ```
 
-**Fluoroquinolone resistance**
+#### Fluoroquinolone resistance
 ```{r}
 tmp <- ResData %>% filter(`FQ_(n)`>100)
 tmp$y = tmp$`FQ_(R%)`/100
@@ -328,7 +338,7 @@ p2 <- ggplot(tmp, aes(mean_int, y, fill=urban_population, size=basic_sanitation)
        title="B")
 ```
 
-**3rd generation cephalosporins**
+#### 3rd generation cephalosporins
 ```{r}
 tmp <- ResData %>% filter(`3GC_(n)`>100)
 tmp$y = tmp$`3GC_(R%)`/100
@@ -363,7 +373,7 @@ p3 <- ggplot(tmp, aes(mean_int, y, size=basic_sanitation, fill=urban_population)
        title="C")
 ```
 
-**Amoinoglycoside resistance**
+#### Amoinoglycoside resistance
 ```{r}
 tmp <- ResData %>% filter(`AG_(n)`>100)
 tmp$y = tmp$`AG_(R%)`/100
@@ -398,13 +408,14 @@ p4 <- ggplot(tmp, aes(mean_int, y, size=basic_sanitation, fill=urban_population)
        title="D")
 ```
 
-**Fig. 4: E. coli clinical resistance models based on combined sewage and socioeconomical data**
+#### Figure 4
 ```{r, fig.width=10, fig.height=7}
 (p1 + p2) /  (p3 + p4) +
   plot_layout(guides = 'collect') & theme(legend.position='bottom')
 ```
+**Fig. 4: E. coli clinical resistance models based on combined sewage and socioeconomical data**
 
-**Aggregated resistance index**
+#### Aggregated resistance index
 ```{r}
 tmp <- ResData
 tmp$y = tmp$AverageAll/100
@@ -428,8 +439,8 @@ new_int5$y <- predict(breg, newdata=new_int5)
 new_int9$y <- predict(breg, newdata=new_int9)
 ```
 
-**Fig. 5: Aggregated resistance model based on combined sewage and socioeconomical data**
-```{r, fig.width=10, fig.height=4}
+#### Figure 5
+```{r, fig.width=10, fig.height=6}
 ggplot(tmp, aes(mean_int, y, size=basic_sanitation, fill=urban_population)) + geom_point(pch=21) +
   geom_line(aes(mean_int, y), data=new_int0, linetype="twodash", color="darkblue", size=1) +
   geom_line(aes(mean_int, y), data=new_int5, linetype="twodash", color="blue", size=1) +
@@ -442,7 +453,182 @@ ggplot(tmp, aes(mean_int, y, size=basic_sanitation, fill=urban_population)) + ge
   labs(x=expression(paste("Relative ", italic("intI1"), " abundance", sep=" ")), y="Aggregated proportion of resistant isolates",
        title="")
 ```
+**Fig. 5: Aggregated resistance model based on combined sewage and socioeconomical data**
+
+### Predictions of clinical resistance prevalence for countries without clinical resistance data
+
+After the promising results from our clinical resistance models, we were confident enough to try and predict clinical resistance prevalence in countries where we didn't have any reliable data on clinical resistance prevalence. 
+
+#### Figure 6
+```{r, fig.width=10, fig.height=8}
+no_data <- data.frame(ResData[!complete.cases(ResData[,c("AP_(R%)", "FQ_(R%)", "3GC_(R%)", "AG_(R%)", "AverageAll")]),])
+no_data <- no_data %>% filter(!(Country=="Gambia" | Country=="Chad" | Country == "Kosovo"))
+
+# AP
+tmp <- ResData %>% filter(`AP_(n)`>100)
+tmp$y = tmp$`AP_(R%)`/100
+breg <- betareg(y ~  log(GDP) + urban_population + basic_sanitation + mean_int, data=tmp, link="loglog")
+pred_AP <- predict(breg, no_data)
+
+# FQ
+tmp <- ResData %>% filter(`FQ_(n)`>100)
+tmp$y = tmp$`FQ_(R%)`/100
+breg <- betareg(y ~  log(GDP) + urban_population + basic_sanitation + mean_int, data=tmp, link="loglog")
+pred_FQ <- predict(breg, no_data)
+
+# 3GC
+tmp <- ResData %>% filter(`3GC_(n)`>100)
+tmp$y = tmp$`3GC_(R%)`/100
+breg <- betareg(y ~ log(GDP) + urban_population + basic_sanitation + mean_int, data=tmp, link="loglog")
+pred_3GC <- predict(breg, no_data)
+
+# AG
+tmp <- ResData %>% filter(`AG_(n)`>100)
+tmp$y = tmp$`AG_(R%)`/100
+breg <- betareg(y ~   log(GDP) + urban_population + basic_sanitation + mean_int, data=tmp, link="loglog")
+pred_AG <- predict(breg, no_data)
+
+# AverageAll
+tmp <-  ResData
+tmp$y = tmp$AverageAll/100
+breg <- betareg(y ~  log(GDP) + urban_population + basic_sanitation + mean_int, data=tmp, link="loglog")
+pred_AA <- predict(breg, no_data)
+
+pred_data <- cbind(no_data, pred_AP, pred_FQ, pred_3GC, pred_AG, pred_AA)
+pred_data <- pred_data %>% filter(!is.na(pred_data[,"pred_AP"]))
+row.names(pred_data) <- pred_data$Country
+pred <- pred_data[,c("pred_AP", "pred_FQ", "pred_3GC", "pred_AG", "pred_AA")]
+annotation_row <- data.frame(Continent=pred_data$Continent, row.names=row.names(pred_data))
+orig_values <- data.frame(no_data[,c("AP_.R..", "FQ_.R..","X3GC_.R..", "AG_.R..", "AverageAll")], row.names=no_data$Country)
+orig_values <- format(round(orig_values/100, digits=2), nsmall=2)
+orig_values[orig_values<0] <- ""
+
+clust_mat <- pred
+clust_mat[orig_values>0] <- orig_values[orig_values>0]
+countries <- c("Georgia", "Macedonia")
+clust_mat[countries,] <- pred_data[countries,c("pred_AP", "pred_FQ", "pred_3GC", "pred_AG", "pred_AA")]
+clust_obj <- hclust(dist(clust_mat))
+
+pred[orig_values>0] <- NA
+# put Georgia and Macedonia back to the model
+countries <- c("Georgia", "Macedonia")
+pred[countries,] <- pred_data[countries,c("pred_AP", "pred_FQ", "pred_3GC", "pred_AG", "pred_AA")]
+
+pheatmap(pred, cluster_cols=FALSE, cluster_rows=clust_obj,annotation_row = annotation_row, display_numbers=orig_values,
+        labels_col=c("Pred AP", "Pred FQ", "Pred 3rd GC", "Pred AG", "Pred Agg"), gaps_col=c(0,0), 
+        angle_col=0, cutree_rows=2, na_col="white")
+```
+**Fig. 6: Predictions of clinical resistance prevalence for countries without clinical resistance data**
+
+###  Global predictions for aggregated resistance index
+
+And for giving an overview of global clinical resistance situation, the same was done for all countries where we had sewage and socio-economical data. 
+
+#### Figure 7
+```{r, fig.width=10, fig.height=5}
+
+all_data <- ResData %>% filter(!(Country=="Gambia" | Country=="Chad" | Country == "Kosovo")) %>% data.frame()
+
+tmp <-  ResData
+tmp$y = tmp$AverageAll/100
+breg <- betareg(y ~  log(GDP) + urban_population + basic_sanitation + mean_int, data=tmp, link="loglog")
+pred_AA <- predict(breg, all_data)
+
+all_data <- cbind(all_data, pred_AA)
+
+RES_map <- map_data("world")
+RES_map <- RES_map %>% filter(region!="Antarctica")
+tmp <- data.frame(region=all_data$Country, pred_AA=all_data$pred_AA)
+tmp$region <- plyr::revalue(tmp$region, c("Viet Nam" = "Vietnam"))
+RES_map <- full_join(RES_map, tmp, by="region")
+
+# main figure
+ggplot() +
+  geom_polygon(data = RES_map, aes(x=long, y = lat, group = group, fill=pred_AA), color="white") +
+  theme(panel.grid = element_blank(), panel.background = element_blank(),
+        plot.title = element_text(size=10, face = "bold"), legend.position = "none") +
+  scale_x_continuous(limits=c(-170, 200)) + scale_y_continuous(limits=c(-60, 85)) +
+  labs(x="Longitude", y="Latitude", title = "", caption = "") +
+  scale_fill_gradient(name="scale", high="red", low="#FFFF99", na.value = "grey70")
+```
+**Fig. 7: Global predictions for aggregated resistance index**
 
 ## Supplementary Materials
 
+The supplementary materials are presented below. 
+
 ### Suppl. Fig 1. 
+
+### Suppl. Fig. 7.
+```{r, fig.width=10, fig.height=6}
+all_data <- ResData %>% filter(!(Country=="Gambia" | Country=="Chad" | Country == "Kosovo")) %>% data.frame()
+# AP
+tmp <- ResData %>% filter(`AP_(n)`>100)
+tmp$y = tmp$`AP_(R%)`/100
+breg <- betareg(y ~ log(GDP) + urban_population + basic_sanitation + mean_int, data=tmp, link="loglog")
+pred_AP <- predict(breg, all_data)
+
+# FQ
+tmp <- ResData %>% filter(`FQ_(n)`>100)
+tmp$y = tmp$`FQ_(R%)`/100
+breg <- betareg(y ~ log(GDP) + urban_population + basic_sanitation + mean_int, data=tmp, link="loglog")
+pred_FQ <- predict(breg, all_data)
+
+# 3GC
+tmp <- ResData %>% filter(`3GC_(n)`>100)
+tmp$y = tmp$`3GC_(R%)`/100
+breg <- betareg(y ~ log(GDP) + urban_population + basic_sanitation + mean_int, data=tmp, link="loglog")
+pred_3GC <- predict(breg, all_data)
+
+# AG
+tmp <- ResData %>% filter(`AG_(n)`>100)
+tmp$y = tmp$`AG_(R%)`/100
+breg <- betareg(y ~ log(GDP) + urban_population + basic_sanitation + mean_int, data=tmp, link="loglog")
+pred_AG <- predict(breg, all_data)
+
+all_data <- cbind(all_data, pred_AP, pred_FQ, pred_3GC, pred_AG)
+
+RES_map <- map_data("world")
+RES_map <- RES_map %>% filter(region!="Antarctica")
+tmp <- data.frame(region=all_data$Country, pred_AP=all_data$pred_AP, pred_FQ=all_data$pred_FQ, pred_3GC=all_data$pred_3GC, pred_AG=all_data$pred_AG)
+tmp$region <- plyr::revalue(tmp$region, c("Viet Nam" = "Vietnam"))
+RES_map <- full_join(RES_map, tmp, by="region")
+
+
+# supplemental figures
+p1 <- ggplot() +
+  geom_polygon(data = RES_map, aes(x=long, y = lat, group = group, fill=pred_AP), color="grey20") +
+  #scale_y_continuous(limits = c(34,71)) +
+  theme(panel.grid = element_blank(), panel.background = element_blank(),
+        plot.title = element_text(size=10, face = "bold"), legend.position = "none") +
+  labs(x="Longitude", y="Latitude", title = "A", caption = "") +
+  scale_fill_gradient(name="scale", high="red", low="#FFFF99", na.value = "grey90")
+
+p2 <- ggplot() +
+    geom_polygon(data = RES_map, aes(x=long, y = lat, group = group, fill=pred_FQ), color="grey20") +
+    #scale_y_continuous(limits = c(34,71)) +
+    theme(panel.grid = element_blank(), panel.background = element_blank(),
+          plot.title = element_text(size=10, face = "bold"), legend.position = "none") +
+    labs(x="Longitude", y="Latitude", title = "B", caption = "") +
+    scale_fill_gradient(name="scale", high="red", low="#FFFF99", na.value = "grey90")
+
+p3 <- ggplot() +
+    geom_polygon(data = RES_map, aes(x=long, y = lat, group = group, fill=pred_3GC), color="grey20") +
+    #scale_y_continuous(limits = c(34,71)) +
+    theme(panel.grid = element_blank(), panel.background = element_blank(),
+          plot.title = element_text(size=10, face = "bold"), legend.position = "none") +
+    labs(x="Longitude", y="Latitude", title = "C", caption = "") +
+    scale_fill_gradient(name="scale", high="red", low="#FFFF99", na.value = "grey90")
+
+p4 <- ggplot() +
+    geom_polygon(data = RES_map, aes(x=long, y = lat, group = group, fill=pred_AG), color="grey20") +
+    #scale_y_continuous(limits = c(34,71)) +
+    theme(panel.grid = element_blank(), panel.background = element_blank(),
+          plot.title = element_text(size=10, face = "bold"), legend.position = "none") +
+    labs(x="Longitude", y="Latitude", title = "D", caption = "") +
+    scale_fill_gradient(name="scale", high="red", low="#FFFF99", na.value = "grey90")
+
+(p1 | p2) / (p3 | p4)
+
+```
+
