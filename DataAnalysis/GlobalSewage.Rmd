@@ -7,29 +7,29 @@ author: "Antti Karkman"
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
 
-# Short Introduction 
+# Short Introduction
 
 ## Objectives
-The main objective of this project is to use untreated sewage as a marker for antibiotic resistance prevalence in clinical pathogens.  
-We want to test whether sewage meatgenomic could be used to predict clinical resistance. 
+The main objective of this project is to use untreated sewage as a marker for antibiotic resistance prevalence in clinical pathogens.
+We want to test whether sewage meatgenomic could be used to predict clinical resistance.
 
 ## The Data
-Metagenomic sequencing data from untreated sewage comes from an article in *Nature Communications* [Global monitoring of antimicrobial resistance based on metagenomics analyses of urban sewage.](https://doi.org/10.1038/s41467-019-08853-3)  
+Metagenomic sequencing data from untreated sewage comes from an article in *Nature Communications* [Global monitoring of antimicrobial resistance based on metagenomics analyses of urban sewage.](https://doi.org/10.1038/s41467-019-08853-3)
 The raw sequence data from this study was downloaded from [ENA](https://www.ebi.ac.uk/ena) under project [ERP015409](https://www.ebi.ac.uk/ena/data/view/PRJEB13831).
 
-The data consists of 234 sewage metagenomemes from 62 countries. The antibiotic resistance genes were annotated against [ResFinder v.3.1.0](https://bitbucket.org/genomicepidemiology/resfinder) database and *intI1* integrase gene against [MobileGeneticElementDatabase](https://github.com/KatariinaParnanen/MobileGeneticElementDatabase).  
+The data consists of 234 sewage metagenomemes from 62 countries. The antibiotic resistance genes were annotated against [ResFinder v.3.1.0](https://bitbucket.org/genomicepidemiology/resfinder) database and *intI1* integrase gene against [MobileGeneticElementDatabase](https://github.com/KatariinaParnanen/MobileGeneticElementDatabase).
 
-The clinical resistance data for *E. coli* against four different classes of antibiotics, aminopenicillins, fluoroquinolones, 3rd generation cephalosporins and aminoglycosides was collected from different surveillance networks. Only data from more than 100 isolates was considered reliable and included in the actual analyses.  
+The clinical resistance data for *E. coli* against four different classes of antibiotics, aminopenicillins, fluoroquinolones, 3rd generation cephalosporins and aminoglycosides was collected from different surveillance networks. Only data from more than 100 isolates was considered reliable and included in the actual analyses.
 In addition, aggregated resistance index from  [Collignon *et al.*, 2018](https://doi.org/10.1016/S2542-5196(18)30186-4) was used in the study.
 
 Socio-economical factors were retrieved from [The World Bank Databank](https://databank.worldbank.org/source/health-nutrition-and-population-statistics).
 
-All ARG and *intI1* integrase gene counts were normalized to the amount of sequence data (million bases). Since the clinical resistance data is on country level, mean of the normalized gene count data was taken for countries with more than one sewage sample. 
+All ARG and *intI1* integrase gene counts were normalized to the amount of sequence data (million bases). Since the clinical resistance data is on country level, mean of the normalized gene count data was taken for countries with more than one sewage sample.
 
-All data has been gathered to one data frame and is available in the `Data` folder. 
+All data has been gathered to one data frame and is available in the `Data` folder.
 
-# Data Analyses 
-Load all needed libraries. 
+# Data Analyses
+Load all needed libraries.
 ```{r, message=FALSE, warning=FALSE}
 library(vegan)
 library(tidyverse)
@@ -40,25 +40,25 @@ library(pheatmap)
 library(patchwork)
 ```
 
-Read in the data and have a look. 
+Read in the data and have a look.
 ```{r}
 # Data
 load("../Data/GlobalSewage.R", verbose=TRUE)
 glimpse(ResData)
 ```
-The data consists of sewage metagenomic resistance marker data, clinical resistance data and socio-economical factors for 62 countries. The clinical resistance data shows the proportion of resistant isolates (`%R`) and total number of isolates (`n`).  
-`Average All` is the aggregated resistance index from  [Collignon *et al.*, 2018](https://doi.org/10.1016/S2542-5196(18)30186-4).  
-`mean_res` is the normalizsed resistance gene count and `mean_int` the normalized _intI1_ integrase gene count.  
-`mean_coliRes`and `mean_topColi` are all and top 10 _E. coli_ associated ARGs in the sewage metagenomes, respectively.  
-`mean_AG`, `mean_BL` and `mean_FQ` are the normalized gene counts for resistance genes against aminoglycosides, beta-lactams and fluoroquinolones, respectively.  
-`GDP`, `basic_sanitation` and `urban_population` are the socio-economical factors used in the models and taken from World Bank Databank. 
+The data consists of sewage metagenomic resistance marker data, clinical resistance data and socio-economical factors for 62 countries. The clinical resistance data shows the proportion of resistant isolates (`%R`) and total number of isolates (`n`).
+`Average All` is the aggregated resistance index from  [Collignon *et al.*, 2018](https://doi.org/10.1016/S2542-5196(18)30186-4).
+`mean_res` is the normalizsed resistance gene count and `mean_int` the normalized _intI1_ integrase gene count.
+`mean_coliRes`and `mean_topColi` are all and top 10 _E. coli_ associated ARGs in the sewage metagenomes, respectively.
+`mean_AG`, `mean_BL` and `mean_FQ` are the normalized gene counts for resistance genes against aminoglycosides, beta-lactams and fluoroquinolones, respectively.
+`GDP`, `basic_sanitation` and `urban_population` are the socio-economical factors used in the models and taken from World Bank Databank.
 
 ## Main Article
 
-### _E. coli_ clinical resistance models based on ten most common ARGs in _E. coli_ 
+### _E. coli_ clinical resistance models based on ten most common ARGs in _E. coli_
 
-The first and maybe most obvious approach was to use the 10 most common ResFinder ARGs in publicly available _E. coli_ genomes in predicting clinical resistance in _E. coli_.  
-Results from beta regression models for the four resistance categories and Figure 1 from the article presented below. 
+The first and maybe most obvious approach was to use the 10 most common ResFinder ARGs in publicly available _E. coli_ genomes in predicting clinical resistance in _E. coli_.
+Results from beta regression models for the four resistance categories and Figure 1 from the article presented below.
 
 #### Clinical aminopenicillin resistance
 ```{r}
@@ -135,10 +135,10 @@ p4 <- ggplot(tmp, aes(mean_topColi, y)) + geom_point(pch=21, size=5, fill="skybl
 ```
 **Fig. 1: E. coli clinical resistance models based on ten most common ARGs in E. coli**
 
-### _E. coli_ clinical resistance models based on intI1 integrase gene 
+### _E. coli_ clinical resistance models based on intI1 integrase gene
 
-Next spet was to use _intI1_ integrase gene as a proxy for antibiotic resistance gene prevalence in sewage samples. 
-The results from this approach ands Figure 2 from the article below. 
+Next spet was to use _intI1_ integrase gene as a proxy for antibiotic resistance gene prevalence in sewage samples.
+The results from this approach ands Figure 2 from the article below.
 
 #### Clinical aminopenicillin resistance
 ```{r}
@@ -216,8 +216,8 @@ p4 <- ggplot(tmp, aes(mean_int, y)) + geom_point(pch=21, size=5, fill="skyblue")
 
 ### Aggregated resistance model based on intI1 integrase gene
 
-Although the two approaches performed equally well, the _intI1_ approach was chosen due to its simplicity compared to the top ARGs in _E.  coli_. 
-So _intI1_ integrase gene abundance was used to model the aggregated resistance index. Results from beta regression model and Figure 3 below. With all data and with Nigeria and Peru removed from the analysis. 
+Although the two approaches performed equally well, the _intI1_ approach was chosen due to its simplicity compared to the top ARGs in _E.  coli_.
+So _intI1_ integrase gene abundance was used to model the aggregated resistance index. Results from beta regression model and Figure 3 below. With all data and with Nigeria and Peru removed from the analysis.
 
 #### With all data
 ```{r}
@@ -263,8 +263,8 @@ p1 + p2
 
 ### E. coli clinical resistance models based on combined sewage and socioeconomical data
 
-It is clear from the results that sewage data alone is not enough for modeling clinical resistance prevalence. To improve the performance, we included socioeconomic factors to the models. 
-We used GDP, proportion of urban population and basic sanotation index in combination with the sewage data (_intI1_) to model clinical resistance prevalence in _E. coli_ and more broadly using the aggregated resistance index. 
+It is clear from the results that sewage data alone is not enough for modeling clinical resistance prevalence. To improve the performance, we included socioeconomic factors to the models.
+We used GDP, proportion of urban population and basic sanotation index in combination with the sewage data (_intI1_) to model clinical resistance prevalence in _E. coli_ and more broadly using the aggregated resistance index.
 
 #### Amniopenicillin resistance
 ```{r}
@@ -455,7 +455,7 @@ ggplot(tmp, aes(mean_int, y, size=basic_sanitation, fill=urban_population)) + ge
 
 ### Predictions of clinical resistance prevalence for countries without clinical resistance data
 
-After the promising results from our clinical resistance models, we were confident enough to try and predict clinical resistance prevalence in countries where we didn't have any reliable data on clinical resistance prevalence. 
+After the promising results from our clinical resistance models, we were confident enough to try and predict clinical resistance prevalence in countries where we didn't have any reliable data on clinical resistance prevalence.
 
 #### Figure 6
 ```{r, fig.width=10, fig.height=8}
@@ -513,14 +513,14 @@ countries <- c("Georgia", "Macedonia")
 pred[countries,] <- pred_data[countries,c("pred_AP", "pred_FQ", "pred_3GC", "pred_AG", "pred_AA")]
 
 pheatmap(pred, cluster_cols=FALSE, cluster_rows=clust_obj,annotation_row = annotation_row, display_numbers=orig_values,
-        labels_col=c("Pred AP", "Pred FQ", "Pred 3rd GC", "Pred AG", "Pred Agg"), gaps_col=c(0,0), 
+        labels_col=c("Pred AP", "Pred FQ", "Pred 3rd GC", "Pred AG", "Pred Agg"), gaps_col=c(0,0),
         angle_col=0, cutree_rows=2, na_col="white")
 ```
 **Fig. 6: Predictions of clinical resistance prevalence for countries without clinical resistance data**
 
 ###  Global predictions for aggregated resistance index
 
-And for giving an overview of global clinical resistance situation, the same was done for all countries where we had sewage and socio-economical data. 
+And for giving an overview of global clinical resistance situation, the same was done for all countries where we had sewage and socio-economical data.
 
 #### Figure 7
 ```{r, fig.width=10, fig.height=5}
@@ -544,18 +544,18 @@ RES_map <- full_join(RES_map, tmp, by="region")
 ggplot() +
   geom_polygon(data = RES_map, aes(x=long, y = lat, group = group, fill=pred_AA), color="white") +
   theme(panel.grid = element_blank(), panel.background = element_blank(),
-        plot.title = element_text(size=10, face = "bold"), legend.position = "none") +
+        plot.title = element_text(size=10, face = "bold"), legend.position = "bottom") +
   scale_x_continuous(limits=c(-170, 200)) + scale_y_continuous(limits=c(-60, 85)) +
   labs(x="Longitude", y="Latitude", title = "", caption = "") +
-  scale_fill_gradient(name="scale", high="red", low="#FFFF99", na.value = "grey70")
+  scale_fill_gradient(name="Predicted aggregated\nresistance index", high="red", low="#FFFF99", na.value = "grey70")
 ```
 **Fig. 7: Global predictions for aggregated resistance index**
 
 ## Supplementary Materials
 
-The supplementary materials are presented below. 
+The supplementary materials are presented below.
 
-### Suppl. Table 1. 
+### Suppl. Table 1.
 ```{r}
 tmp <- ResData %>% filter(`AP_(n)`>100)
 tmp$y = tmp$`AP_(R%)`/100
@@ -588,7 +588,7 @@ summary(breg)
 ```
 
 
-### Suppl. Fig 1. 
+### Suppl. Fig 1.
 ```{r, fig.height=6, fig.width=8}
 old_par <- par()
 par(mar=c(4,4,2,2))
@@ -686,7 +686,7 @@ p4 <- ggplot() +
 ```{r, fig.width=12, fig.height=10}
 old_par <- par()
 par(mar=c(4,4,2,2))
-keep_cols <- c("GDP", "basic_sanitation", "basic_drinking_water", "urban_population", "access_electricity",  
+keep_cols <- c("GDP", "basic_sanitation", "basic_drinking_water", "urban_population", "access_electricity",
                "AP_(R%)", "FQ_(R%)", "3GC_(R%)", "AG_(R%)", "mean_res", "mean_int")
 cc_vec <- ResData[,keep_cols] %>% complete.cases()
 complete_AB_data <- data.frame(ResData[cc_vec, keep_cols])
